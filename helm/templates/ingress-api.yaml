@@ -1,0 +1,32 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: syndicator-api
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`{{ .Values.api.domain }}`)
+    services:
+    - name: syndicator-api
+      port: 8000
+  tls:
+    secretName: syndicator-api-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: syndicator-redirect
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`{{ .Values.api.domain }}`)
+    middlewares:
+    - name: https-redirect
+      namespace: traefik
+    services:
+    - kind: TraefikService
+      name: noop@internal

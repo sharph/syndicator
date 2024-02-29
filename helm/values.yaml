@@ -1,0 +1,11 @@
+api: 
+  image:
+    tag: latest
+  domain: ''
+web:
+  image:
+    tag: latest
+  domain: ''
+cookiesDomain: ''
+cert:
+  organization: ''
