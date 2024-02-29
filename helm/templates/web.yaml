@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syndicator-web
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: syndicator-web
+  template:
+    metadata:
+      labels:
+        app: syndicator-web
+    spec:
+      containers:
+      - image: 'ghcr.io/sharph/syndicator-frontend:{{ .Values.web.image.tag }}'
+        name: syndicator-web
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            memory: 512Mi
+        env:
+        - name: PUBLIC_API_ROOT
+          value: 'https://{{ .Values.api.domain }}'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syndicator-web
+spec:
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: syndicator-web
