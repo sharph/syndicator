@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = json.loads(os.getenv("DJANGO_ALLOWED_HOSTS", '["*"]'))
 
 
 # Application definition
