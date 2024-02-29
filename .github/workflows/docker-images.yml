@@ -63,9 +63,9 @@ jobs:
           push: true
           tags: ${{ steps.apimeta.outputs.tags }}
           labels: ${{ steps.apimeta.outputs.labels }}
-#      - name: Deploy via ArgoCD
-#        run: |-
-#          curl -sSL -o argocd https://${{ secrets.ARGOCD_SERVER }}/download/argocd-linux-amd64
-#          chmod +x argocd
-#          ARGOCD_AUTH_TOKEN=${{ secrets.ARGOCD_AUTH_TOKEN }} ARGOCD_SERVER=${{ secrets.ARGOCD_SERVER }} ./argocd app set syndicator -p image.tag=sha-$GITHUB_SHA
-#          ARGOCD_AUTH_TOKEN=${{ secrets.ARGOCD_AUTH_TOKEN }} ARGOCD_SERVER=${{ secrets.ARGOCD_SERVER }} ./argocd app wait syndicator
+      - name: Deploy via ArgoCD
+        run: |-
+          curl -sSL -o argocd https://${{ secrets.ARGOCD_SERVER }}/download/argocd-linux-amd64
+          chmod +x argocd
+          ARGOCD_AUTH_TOKEN=${{ secrets.ARGOCD_AUTH_TOKEN }} ARGOCD_SERVER=${{ secrets.ARGOCD_SERVER }} ./argocd app set syndicator -p api.image.tag=sha-$GITHUB_SHA -p web.image.tag=sha-$GITHUB_SHA
+          ARGOCD_AUTH_TOKEN=${{ secrets.ARGOCD_AUTH_TOKEN }} ARGOCD_SERVER=${{ secrets.ARGOCD_SERVER }} ./argocd app wait syndicator
