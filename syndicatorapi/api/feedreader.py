@@ -1,13 +1,21 @@
-import requests
-from bs4 import BeautifulSoup
 import json
-from itertools import chain
 import datetime
+from itertools import chain
 from pprint import pprint
+
+from django.conf import settings
+
+import requests
+
+from bs4 import BeautifulSoup
+
+
+USER_AGENT = f"syndicator/{settings.GIT_HASH}"
+TIMEOUT = 5
 
 
 def get_feed(url):
-    response = requests.get(url)
+    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     return response.text
 
 
@@ -133,13 +141,13 @@ def get_and_parse_feed(url):
 
 
 def discover_feed(url) -> (str, str):
-    response = requests.get(url)
+    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     if response.headers.get("content-type", "").startswith("text/html"):
         soup = BeautifulSoup(response.text, "html.parser")
         head = PageHead(soup)
         if head.rss:
             feed_url = head.rss
-            response = requests.get(head.rss)
+            response = requests.get(head.rss, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
         else:
             raise ValueError("No feed found in HTML")
     else:
@@ -156,7 +164,7 @@ def discover_feed(url) -> (str, str):
 
 
 def get_pagehead(url):
-    response = requests.get(url)
+    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     return PageHead(BeautifulSoup(response.text, "html.parser"))
 
 

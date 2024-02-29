@@ -168,3 +168,6 @@ if os.getenv("DJANGO_COOKIE_DOMAIN"):
 
 
 CORS_ALLOW_CREDENTIALS = True
+
+
+GIT_HASH = os.getenv("GIT_HASH", "unknown")
