@@ -51,7 +51,7 @@ spec:
         - name: DJANGO_ALLOWED_HOSTS
           value: '["{{ .Values.api.domain }}"]'
         - name: DJANGO_ALLOWED_ORIGINS
-          value: '["{{ .Values.web.domain }}"]'
+          value: '["https://{{ .Values.web.domain }}"]'
         - name: DJANGO_COOKIE_DOMAIN
           value: '.{{ .Values.cookiesDomain }}'
         - name: DJANGO_DEBUG
