@@ -21,7 +21,7 @@ spec:
     spec:
       restartPolicy: OnFailure
       containers:
-      - image: 'ghcr.io/sharph/syndicator:{{ .Values.api.image.tag }}'
+      - image: 'ghcr.io/sharph/syndicator-api:{{ .Values.api.image.tag }}'
         name: syndicator-db-migration
         command: ["./manage.py", "migrate"]
         env:
