@@ -18,7 +18,7 @@ spec:
         app: syndicator-fetcher
     spec:
       containers:
-      - image: 'ghcr.io/sharph/syndicator-api:{{ .Values.updater.image.tag }}'
+      - image: 'ghcr.io/sharph/syndicator-api:{{ .Values.api.image.tag }}'
         name: phlparty
         command: ["./manage.py", "fetchfeeds"]
         env:
