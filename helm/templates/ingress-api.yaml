@@ -12,7 +12,7 @@ spec:
     - name: syndicator-api
       port: 8000
   tls:
-    secretName: syndicator-api-cert
+    secretName: syndicator-cert
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
