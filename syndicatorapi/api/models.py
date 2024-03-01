@@ -160,7 +160,7 @@ class Item(models.Model):
         description = head.description or item.description
         image = head.image or item.image
         pub_date = item["pubDate"]
-        guid = item["guid"]
+        guid = item.guid
         next_refresh = timezone.now() + timezone.timedelta(days=1)
         if obj:
             next_refresh = obj.get_next_refresh()
