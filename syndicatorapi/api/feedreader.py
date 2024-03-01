@@ -83,6 +83,12 @@ class FeedItem:
             else None
         )
 
+    @property
+    def guid(self):
+        guid = self["guid"]
+        if guid and len(guid) > 5:
+            return guid
+
 
 class PageHead:
     def __init__(self, soup):

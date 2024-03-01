@@ -65,7 +65,7 @@ class Feed(models.Model):
             Item.fetch(self, item)
             if i > MAX_ITEMS:
                 break
-    
+
     @classmethod
     def get_or_create_from_metadata(cls, feed_url, metadata):
         feed, _ = cls.objects.get_or_create(
@@ -84,7 +84,6 @@ class Feed(models.Model):
             },
         )
         return feed
-
 
     @classmethod
     def refresh_next(cls):
@@ -116,18 +115,25 @@ class Subscription(models.Model):
 class Item(models.Model):
     feed = models.ForeignKey(Feed, related_name="items", on_delete=models.CASCADE)
     key = models.CharField(max_length=16, default=gen_key, unique=True)
+    guid = models.CharField(max_length=400, null=True)
     title = models.CharField(max_length=200)
     slug = AutoSlugField(populate_from="title")
     link = models.CharField(max_length=400)
     description = models.TextField(null=True)
     image = models.TextField(null=True)
     pub_date = models.DateTimeField()
+    next_refresh = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ["-pub_date"]
 
     def __str__(self):
         return self.title
+
+    def get_next_refresh(self):
+        if self.pub_date < timezone.now() - timezone.timedelta(days=30):
+            return None
+        return timezone.now() + timezone.timedelta(days=1)
 
     @property
     def path(self):
@@ -139,21 +145,46 @@ class Item(models.Model):
 
     @classmethod
     def fetch(cls, feed, item):
-        obj = cls.objects.filter(feed=feed, link=item["link"]).first()
-        if obj:
+        if item.guid:
+            obj = cls.objects.filter(feed=feed, guid=item.guid).first()
+        if not obj:
+            obj = cls.objects.filter(feed=feed, link=item["link"]).first()
+        if (
+            obj
+            and (not obj.next_refresh or obj.next_refresh > timezone.now())
+            and obj.link == item["link"]
+        ):
             return obj
         head = feedreader.get_pagehead(item["link"])
         title = head.title or item.title
         description = head.description or item.description
         image = head.image or item.image
         pub_date = item["pubDate"]
-        return cls.objects.update_or_create(
-            feed=feed,
-            link=item["link"],
-            defaults={
-                "title": title,
-                "description": description,
-                "image": image,
-                "pub_date": pub_date,
-            },
-        )[0]
+        guid = item["guid"]
+        next_refresh = timezone.now() + timezone.timedelta(days=1)
+        if obj:
+            next_refresh = obj.get_next_refresh()
+        if guid:
+            return cls.objects.update_or_create(
+                feed=feed,
+                guid=guid,
+                defaults={
+                    "title": title,
+                    "description": description,
+                    "image": image,
+                    "pub_date": pub_date,
+                    "next_refresh": next_refresh,
+                },
+            )[0]
+        else:
+            return cls.objects.update_or_create(
+                feed=feed,
+                link=item["link"],
+                defaults={
+                    "title": title,
+                    "description": description,
+                    "image": image,
+                    "pub_date": pub_date,
+                    "next_refresh": next_refresh,
+                },
+            )[0]
