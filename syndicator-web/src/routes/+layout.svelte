@@ -1,6 +1,13 @@
 <script>
 	import '../app.pcss';
-	import { AppShell, AppRail, AppRailAnchor, AppBar } from '@skeletonlabs/skeleton';
+	import {
+		AppShell,
+		AppRail,
+		AppRailAnchor,
+		AppBar,
+		TabGroup,
+		TabAnchor
+	} from '@skeletonlabs/skeleton';
 	import { page } from '$app/stores';
 	import Icon from 'svelte-icons-pack/Icon.svelte';
 	import FaSolidRss from 'svelte-icons-pack/fa/FaSolidRss';
@@ -15,9 +22,57 @@
 		<AppBar gridColumns="grid-cols-1" slotDefault="place-self-center" slotTrail="place-content-end">
 			<h1 class="title text-2xl">syndicator</h1>
 		</AppBar>
+		<TabGroup
+			active="variant-filled-primary"
+			hover="hover:variant-soft-primary"
+			flex="flex-1 lg:flex-none"
+			rounded=""
+			border=""
+			class="bg-surface-100-800-token w-full block md:hidden"
+		>
+			{#if data.user}
+			<TabAnchor href="/" selected={$page.url.pathname === '/'}>
+				<svelte:fragment slot="lead">
+					<Icon src={FaNewspaper} />
+				</svelte:fragment>
+				<span>Articles</span>
+			</TabAnchor>
+			<TabAnchor href="/favorites" selected={$page.url.pathname === '/favorites'}>
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidHeart} />
+				</svelte:fragment>
+				<span>Favorites</span>
+			</TabAnchor>
+			<TabAnchor href="/subscriptions" selected={$page.url.pathname === '/subscriptions'}>
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidRss} />
+				</svelte:fragment>
+				<span>Subscriptions</span>
+			</TabAnchor>
+			<TabAnchor href="/account" selected={$page.url.pathname === '/account'}>
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidUser} />
+				</svelte:fragment>
+				<span>Account</span>
+			</TabAnchor>
+			<TabAnchor href="/logout">
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidUser} />
+				</svelte:fragment>
+				<span>Logout</span>
+			</TabAnchor>
+			{:else}
+			<TabAnchor href="/login">
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidUser} />
+				</svelte:fragment>
+				<span>Login</span>
+			</TabAnchor>
+			{/if}
+		</TabGroup>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<AppRail>
+		<AppRail class="hidden md:block">
 			{#if data.user}
 				<AppRailAnchor href="/" selected={$page.url.pathname === '/'}>
 					<svelte:fragment slot="lead">
