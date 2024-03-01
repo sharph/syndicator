@@ -189,3 +189,17 @@ class Item(models.Model):
                     "next_refresh": next_refresh,
                 },
             )[0]
+
+
+class ItemClick(models.Model):
+    item = models.ForeignKey(Item, related_name="clicks", on_delete=models.CASCADE)
+    subscription = models.ForeignKey(
+        Subscription, related_name="clicks", on_delete=models.CASCADE
+    )
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ("item", "subscription")
+
+    def __str__(self):
+        return f"{self.subscription.user} clicked {self.item}"

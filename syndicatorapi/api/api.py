@@ -2,7 +2,7 @@ from ninja import NinjaAPI, Schema
 from ninja.security import django_auth
 from ninja.errors import HttpError, ValidationError as NinjaValidationError
 
-from .models import Feed, Item, Subscription
+from .models import Feed, Item, Subscription, ItemClick
 from .feedreader import discover_feed
 
 from typing import Optional
@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.password_validation import validate_password, ValidationError
+from django.shortcuts import get_object_or_404
 
 api = NinjaAPI(title="syndicator", auth=django_auth, csrf=True)
 
@@ -116,13 +117,26 @@ class ItemSchema(Schema):
     pub_date: datetime
     feed: FeedSchema
     path: str
+    clicked: Optional[bool]
+
+
+def add_clicked(request, items):
+    if request.user.is_authenticated:
+        pks = [item.pk for item in items]
+        clicks = [click.item.pk for click in ItemClick.objects.filter(
+            subscription__user=request.user, item__pk__in=pks
+        )]
+        for item in items:
+            item.clicked = item.pk in clicks
+    return items
 
 
 @api.get("/articles", response=list[ItemSchema], tags=["articles"])
 def articles(request):
-    return Item.objects.filter(feed__subscriptions__user=request.user).order_by(
+    items = list(Item.objects.filter(feed__subscriptions__user=request.user).order_by(
         "-pub_date"
-    )[:1000]
+    )[:1000])
+    return add_clicked(request, items)
 
 
 @api.get("/subscriptions/", response=list[FeedSchema], tags=["subscriptions"])
@@ -142,6 +156,36 @@ def add_subscription(request, data: FeedIn):
 def delete_subscription(request, key: str, slug: str):
     Subscription.objects.filter(
         user=request.user, feed__key=key, feed__slug=slug
+    ).delete()
+    return {"success": True}
+
+
+@api.post("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["clicks"])
+def click(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
+    item = get_object_or_404(
+        Item.objects.filter(
+            feed__key=feed_key, feed__slug=feed_slug, key=item_key, slug=item_slug
+        )
+    )
+    subscription = get_object_or_404(
+        Subscription.objects.filter(user=request.user, feed=item.feed)
+    )
+    ItemClick.objects.get_or_create(subscription=subscription, item=item)
+    return {"success": True}
+
+
+@api.delete("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["clicks"])
+def unclick(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
+    item = get_object_or_404(
+        Item.objects.filter(
+            feed__key=feed_key, feed__slug=feed_slug, key=item_key, slug=item_slug
+        )
+    )
+    subscription = get_object_or_404(
+        Subscription.objects.filter(user=request.user, feed=item.feed)
+    )
+    get_object_or_404(
+        ItemClick.objects.filter(subscription=subscription, item=item)
     ).delete()
     return {"success": True}
 

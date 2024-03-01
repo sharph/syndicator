@@ -180,6 +180,7 @@ export type Article = {
     pub_date: string;
     feed: Feed;
     path: string;
+    clicked: boolean | undefined;
 };
 
 export type User = {
@@ -189,6 +190,14 @@ export type User = {
 export async function articles(f: typeof fetch): Promise<Article[]> {
     const res = await apiGet(f, '/articles');
     return await res.json();
+}
+
+export async function click(f: typeof fetch, path: string): Promise<void> {
+    await apiPost(f, `/clicks/${path}`, {});
+}
+
+export async function unclick(f: typeof fetch, path: string): Promise<void> {
+    await apiDelete(f, `/clicks/${path}`);
 }
 
 export async function login(f: typeof fetch, email: string, password: string): Promise<User> {
@@ -235,6 +244,8 @@ export function getApi(f: typeof fetch) {
         patch: (path: string, body: any) => apiPatch(newFetch, path, body),
         delete: (path: string) => apiDelete(newFetch, path),
         articles: () => articles(newFetch),
+        click: (path: string) => click(newFetch, path),
+        unclick: (path: string) => unclick(newFetch, path),
         login: (email: string, password: string) => login(newFetch, email, password),
         logout: () => logout(newFetch),
         user: () => user(newFetch),
