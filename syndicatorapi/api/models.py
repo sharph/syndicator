@@ -170,6 +170,7 @@ class Item(models.Model):
                 guid=guid,
                 defaults={
                     "title": title,
+                    "link": item["link"],
                     "description": description,
                     "image": image,
                     "pub_date": pub_date,
