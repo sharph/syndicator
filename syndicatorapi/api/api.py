@@ -1,5 +1,6 @@
 from ninja import NinjaAPI, Schema
 from ninja.security import django_auth
+from ninja.errors import HttpError, ValidationError as NinjaValidationError
 
 from .models import Feed, Item, Subscription
 from .feedreader import discover_feed
@@ -8,6 +9,7 @@ from typing import Optional
 
 from datetime import datetime
 
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.password_validation import validate_password, ValidationError
@@ -17,13 +19,41 @@ api = NinjaAPI(title="syndicator", auth=django_auth, csrf=True)
 # auth
 
 
+@api.exception_handler(NinjaValidationError)
+def ninja_validation_error(request, exc):
+    return api.create_response(request, {"errors": exc.errors}, status=400)
+
+
+@api.exception_handler(ValidationError)
+def validation_error(request, exc):
+    return api.create_response(request, {"errors": exc.messages}, status=400)
+
+
+@api.exception_handler(ValueError)
+def value_error(request, exc):
+    return api.create_response(request, {"error": str(exc)}, status=400)
+
+
 class UserIn(Schema):
     email: str
     password: str
 
 
+class ChangePasswordIn(Schema):
+    old_password: str
+    new_password: str
+
+
 class UserOut(Schema):
     email: str
+
+
+@api.post("/auth/register", auth=None, response=UserOut)
+def register(request, data: UserIn):
+    validate_password(data.password)
+    user = User.objects.create_user(email=data.email, password=data.password)
+    auth_login(request, user)
+    return user
 
 
 @api.post("/auth/login", auth=None, response=UserOut)
@@ -36,10 +66,22 @@ def login(request, data: UserIn):
         raise ValueError("Invalid username or password")
 
 
+@api.post("/auth/change_password", response=UserOut)
+def change_password(request, data: ChangePasswordIn):
+    if not request.user.check_password(data.old_password):
+        raise ValueError("Invalid password")
+    validate_password(data.new_password)
+    request.user.set_password(data.new_password)
+    request.user.save()
+    auth_login(request, request.user)
+    return request.user
+
+
 @api.post("/auth/logout", auth=None)
 def logout(request):
     auth_logout(request)
     return {"success": True}
+
 
 @api.get("/auth/user", response=UserOut)
 def get_user(request):
@@ -78,9 +120,7 @@ class ItemSchema(Schema):
 
 @api.get("/articles", response=list[ItemSchema], tags=["articles"])
 def articles(request):
-    return Item.objects.filter(
-        feed__subscriptions__user=request.user
-    ).order_by(
+    return Item.objects.filter(feed__subscriptions__user=request.user).order_by(
         "-pub_date"
     )[:1000]
 

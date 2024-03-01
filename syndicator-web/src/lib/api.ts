@@ -83,6 +83,16 @@ export function wrapFetchToPassCookies(f: typeof fetch, cookies: Cookies): typeo
     };
 }
 
+export class APIUserError extends Error {
+    response: Response;
+
+    constructor(response: Response) {
+        super(response.statusText);
+        this.name = "APIUserError";
+        this.response = response;
+    }
+}
+
 export async function apiGet(f: typeof fetch, path: string) {
     const res = await f(`${API_ROOT}${path}`,
         {
@@ -90,6 +100,9 @@ export async function apiGet(f: typeof fetch, path: string) {
             credentials: 'include',
         }
     );
+    if (res.status >= 400 && res.status < 500) {
+        throw new APIUserError(res);
+    }
     if (res.status !== 200) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
     }
@@ -105,6 +118,9 @@ export async function apiPost(f: typeof fetch, path: string, body: any) {
         body: JSON.stringify(body),
         credentials: 'include',
     });
+    if (res.status >= 400 && res.status < 500) {
+        throw new APIUserError(res);
+    }
     if (res.status !== 200) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
     }
@@ -120,6 +136,9 @@ export async function apiPatch(f: typeof fetch, path: string, body: any) {
         body: JSON.stringify(body),
         credentials: 'include',
     });
+    if (res.status >= 400 && res.status < 500) {
+        throw new APIUserError(res);
+    }
     if (res.status !== 200) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
     }
@@ -131,6 +150,9 @@ export async function apiDelete(f: typeof fetch, path: string) {
         method: 'DELETE',
         credentials: 'include',
     });
+    if (res.status >= 400 && res.status < 500) {
+        throw new APIUserError(res);
+    }
     if (res.status !== 200) {
         throw new Error(`API error: ${res.status} ${res.statusText}`);
     }
@@ -178,6 +200,14 @@ export async function logout(f: typeof fetch): Promise<void> {
     await apiPost(f, '/auth/logout', {});
 }
 
+export async function changePassword(f: typeof fetch, oldPassword: string, newPassword: string): Promise<User> {
+    const res = await apiPost(f, '/auth/change_password', {
+        old_password: oldPassword,
+        new_password: newPassword
+    });
+    return await res.json();
+}
+
 export async function user(f: typeof fetch): Promise<User> {
     const res = await apiGet(f, '/auth/user');
     return await res.json();
@@ -208,6 +238,7 @@ export function getApi(f: typeof fetch) {
         login: (email: string, password: string) => login(newFetch, email, password),
         logout: () => logout(newFetch),
         user: () => user(newFetch),
+        changePassword: (oldPassword: string, newPassword: string) => changePassword(newFetch, oldPassword, newPassword),
         subscriptions: () => subscriptions(newFetch),
         subscribe: (url: string) => subscribe(newFetch, url),
         unsubscribe: (path: string) => unsubscribe(newFetch, path),
