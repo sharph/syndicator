@@ -258,8 +258,8 @@ def unfavorite(request, feed_key: str, feed_slug: str, item_key: str, item_slug:
     return {"success": True}
 
 
-@api.post("/csrf", tags=["csrf"])
-@csrf_exempt
+@api.post("/csrf", tags=["csrf"], auth=None)
 @ensure_csrf_cookie
+@csrf_exempt
 def csrf(request):
-    return {"message": "ok"}
+    return api.create_response(request, {"success": True}, status=200)
