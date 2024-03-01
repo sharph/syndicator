@@ -181,6 +181,7 @@ export type Article = {
     feed: Feed;
     path: string;
     clicked: boolean | undefined;
+    favorited: boolean | undefined;
 };
 
 export type User = {
@@ -192,12 +193,25 @@ export async function articles(f: typeof fetch): Promise<Article[]> {
     return await res.json();
 }
 
+export async function favorites(f: typeof fetch): Promise<Article[]> {
+    const res = await apiGet(f, '/favorites');
+    return await res.json();
+}
+
 export async function click(f: typeof fetch, path: string): Promise<void> {
     await apiPost(f, `/clicks/${path}`, {});
 }
 
 export async function unclick(f: typeof fetch, path: string): Promise<void> {
     await apiDelete(f, `/clicks/${path}`);
+}
+
+export async function favorite(f: typeof fetch, path: string): Promise<void> {
+    await apiPost(f, `/favorites/${path}`, {});
+}
+
+export async function unfavorite(f: typeof fetch, path: string): Promise<void> {
+    await apiDelete(f, `/favorites/${path}`);
 }
 
 export async function login(f: typeof fetch, email: string, password: string): Promise<User> {
@@ -244,8 +258,11 @@ export function getApi(f: typeof fetch) {
         patch: (path: string, body: any) => apiPatch(newFetch, path, body),
         delete: (path: string) => apiDelete(newFetch, path),
         articles: () => articles(newFetch),
+        favorites: () => favorites(newFetch),
         click: (path: string) => click(newFetch, path),
         unclick: (path: string) => unclick(newFetch, path),
+        favorite: (path: string) => favorite(newFetch, path),
+        unfavorite: (path: string) => unfavorite(newFetch, path),
         login: (email: string, password: string) => login(newFetch, email, password),
         logout: () => logout(newFetch),
         user: () => user(newFetch),

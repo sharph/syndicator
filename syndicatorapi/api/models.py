@@ -203,3 +203,17 @@ class ItemClick(models.Model):
 
     def __str__(self):
         return f"{self.subscription.user} clicked {self.item}"
+
+
+class ItemFavorite(models.Model):
+    item = models.ForeignKey(Item, related_name="favorites", on_delete=models.CASCADE)
+    subscription = models.ForeignKey(
+        Subscription, related_name="favorites", on_delete=models.CASCADE
+    )
+    created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ("item", "subscription")
+
+    def __str__(self):
+        return f"{self.subscription.user} favorited {self.item}"
