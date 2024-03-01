@@ -1,4 +1,10 @@
 <script lang="ts">
+	import { invalidate } from "$app/navigation";
+	import { onMount } from "svelte";
+
+	onMount(() => {
+		invalidate('app:user');
+	});
 </script>
 
 <div class="ml-auto mr-auto max-w-4xl">

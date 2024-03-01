@@ -1,10 +1,17 @@
 
 import { getApi } from '$lib/api';
 
-export async function load({ fetch }) {
+export async function load({ fetch, depends }) {
+    depends('app:user');
     const api = getApi(fetch);
-    const articles = await api.articles();
-    return {
-        articles
-    };
+    try {
+        const articles = await api.articles();
+        return {
+            articles
+        };
+    } catch (e) {
+        return {
+            articles: []
+        }
+    }
 }
