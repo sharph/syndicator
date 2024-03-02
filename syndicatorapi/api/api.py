@@ -5,6 +5,8 @@ from ninja.errors import HttpError, ValidationError as NinjaValidationError
 from .models import Feed, Item, Subscription, ItemClick, ItemFavorite
 from .feedreader import discover_feed
 
+from user.models import User
+
 from typing import Optional
 
 from datetime import datetime
@@ -14,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.password_validation import validate_password, ValidationError
 from django.shortcuts import get_object_or_404
+from django.core.validators import validate_email
 
 api = NinjaAPI(title="syndicator", auth=django_auth, csrf=True)
 
@@ -51,6 +54,9 @@ class UserOut(Schema):
 
 @api.post("/auth/register", auth=None, response=UserOut)
 def register(request, data: UserIn):
+    validate_email(data.email)
+    if User.user_exists(data.email):
+        raise ValueError("User already exists")
     validate_password(data.password)
     user = User.objects.create_user(email=data.email, password=data.password)
     auth_login(request, user)

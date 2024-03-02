@@ -38,3 +38,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+    @classmethod
+    def user_exists(cls, email):
+        return cls.objects.filter(email=normalize_email(email)).exists()

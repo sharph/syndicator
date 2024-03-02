@@ -10,7 +10,7 @@
 
 	const pageElement = browser ? (document.getElementById('page') as HTMLElement) : undefined;
 
-    let lastFavorite: string = data.articles[data.articles.length - 1].favorited as string;
+    let lastFavorite: string | undefined = data.articles.length === 0 ? undefined : data.articles[data.articles.length - 1].favorited as string;
 
 	async function loadMore() {
 		if (locked) return;

@@ -222,6 +222,11 @@ export async function unfavorite(f: typeof fetch, path: string): Promise<void> {
     await apiDelete(f, `/favorites/${path}`);
 }
 
+export async function register(f: typeof fetch, email: string, password: string): Promise<User> {
+    const res = await apiPost(f, '/auth/register', { email, password });
+    return await res.json();
+}
+
 export async function login(f: typeof fetch, email: string, password: string): Promise<User> {
     const res = await apiPost(f, '/auth/login', { email, password });
     return await res.json();
@@ -271,6 +276,7 @@ export function getApi(f: typeof fetch) {
         unclick: (path: string) => unclick(newFetch, path),
         favorite: (path: string) => favorite(newFetch, path),
         unfavorite: (path: string) => unfavorite(newFetch, path),
+        register: (email: string, password: string) => register(newFetch, email, password),
         login: (email: string, password: string) => login(newFetch, email, password),
         logout: () => logout(newFetch),
         user: () => user(newFetch),

@@ -16,6 +16,7 @@
 	import FaSolidHeart from 'svelte-icons-pack/fa/FaSolidHeart';
 	import FaSolidSignInAlt from 'svelte-icons-pack/fa/FaSolidSignInAlt';
 	import FaSolidSignOutAlt from 'svelte-icons-pack/fa/FaSolidSignOutAlt';
+	import FaSolidUserPlus from 'svelte-icons-pack/fa/FaSolidUserPlus';
 	export let data;
 </script>
 
@@ -70,6 +71,12 @@
 				</svelte:fragment>
 				<span>Login</span>
 			</TabAnchor>
+			<TabAnchor href="/register">
+				<svelte:fragment slot="lead">
+					<Icon src={FaSolidUserPlus} />
+				</svelte:fragment>
+				<span>Register</span>
+			</TabAnchor>
 			{/if}
 		</TabGroup>
 	</svelte:fragment>
@@ -112,6 +119,12 @@
 						<Icon src={FaSolidSignInAlt} />
 					</svelte:fragment>
 					<span>Login</span>
+				</AppRailAnchor>
+				<AppRailAnchor href="/register">
+					<svelte:fragment slot="lead">
+						<Icon src={FaSolidUserPlus} />
+					</svelte:fragment>
+					<span>Register</span>
 				</AppRailAnchor>
 			{/if}
 		</AppRail>
