@@ -181,20 +181,28 @@ export type Article = {
     feed: Feed;
     path: string;
     clicked: boolean | undefined;
-    favorited: boolean | undefined;
+    favorited: string | null | undefined;
 };
 
 export type User = {
     email: string;
 }
 
-export async function articles(f: typeof fetch): Promise<Article[]> {
-    const res = await apiGet(f, '/articles');
+export async function articles(f: typeof fetch, before?: string): Promise<Article[]> {
+    let url = '/articles';
+    if (before) {
+        url += `?before=${before}`;
+    }
+    const res = await apiGet(f, url);
     return await res.json();
 }
 
-export async function favorites(f: typeof fetch): Promise<Article[]> {
-    const res = await apiGet(f, '/favorites');
+export async function favorites(f: typeof fetch, before?: string): Promise<Article[]> {
+    let url = '/favorites';
+    if (before) {
+        url += `?before=${before}`;
+    }
+    const res = await apiGet(f, url);
     return await res.json();
 }
 
@@ -257,8 +265,8 @@ export function getApi(f: typeof fetch) {
         post: (path: string, body: any) => apiPost(newFetch, path, body),
         patch: (path: string, body: any) => apiPatch(newFetch, path, body),
         delete: (path: string) => apiDelete(newFetch, path),
-        articles: () => articles(newFetch),
-        favorites: () => favorites(newFetch),
+        articles: (before?: string) => articles(newFetch, before),
+        favorites: (before?: string) => favorites(newFetch, before),
         click: (path: string) => click(newFetch, path),
         unclick: (path: string) => unclick(newFetch, path),
         favorite: (path: string) => favorite(newFetch, path),

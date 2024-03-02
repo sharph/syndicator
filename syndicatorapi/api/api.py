@@ -118,7 +118,7 @@ class ItemSchema(Schema):
     feed: FeedSchema
     path: str
     clicked: Optional[bool]
-    favorited: Optional[bool]
+    favorited: Optional[datetime | None]
 
 
 def add_clicked(request, items):
@@ -138,38 +138,37 @@ def add_clicked(request, items):
 def add_favorited(request, items):
     if request.user.is_authenticated:
         pks = [item.pk for item in items]
-        favorited = [
-            favorite.item.pk
+        favorited = {
+            favorite.item.pk: favorite
             for favorite in ItemFavorite.objects.filter(
                 subscription__user=request.user, item__pk__in=pks
             )
-        ]
+        }
         for item in items:
-            item.favorited = item.pk in favorited
+            if item.pk in favorited:
+                item.favorited = favorited[item.pk].created
+            else:
+                item.favorited = None
     return items
 
 
 @api.get("/articles", response=list[ItemSchema], tags=["articles"])
-def articles(request):
-    items = list(
-        Item.objects.filter(feed__subscriptions__user=request.user)
-        .order_by("-pub_date")
-        .select_related("feed")[:1000]
-    )
+def articles(request, before: datetime | None = None):
+    qs = Item.objects.filter(feed__subscriptions__user=request.user)
+    if before:
+        qs = qs.filter(pub_date__lt=before)
+    qs = qs.order_by("-pub_date").select_related("feed")[:20]
+    items = list(qs)
     return add_favorited(request, add_clicked(request, items))
 
 
 @api.get("/favorites", response=list[ItemSchema], tags=["favorites"])
-def favorites(request):
-    items = [
-        favorite.item
-        for favorite in ItemFavorite.objects.filter(
-            subscription__user=request.user
-        ).select_related(
-            "item",
-            "item__feed",
-        ).order_by("-created")[:1000]
-    ]
+def favorites(request, before: datetime | None = None):
+    qs = ItemFavorite.objects.filter(subscription__user=request.user)
+    if before:
+        qs = qs.filter(created__lt=before)
+    qs = qs.order_by("-created").select_related("item", "item__feed")[:20]
+    items = [favorite.item for favorite in qs]
     return add_favorited(request, add_clicked(request, items))
 
 

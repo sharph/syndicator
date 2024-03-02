@@ -47,6 +47,7 @@
 	"type": "module",
 	"dependencies": {
 		"@types/set-cookie-parser": "^2.4.7",
-		"svelte-icons-pack": "^2.1.0"
+		"svelte-icons-pack": "^2.1.0",
+		"svelte-infinite-scroll": "^2.0.1"
 	}
 }
