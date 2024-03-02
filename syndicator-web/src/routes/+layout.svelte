@@ -14,6 +14,8 @@
 	import FaNewspaper from 'svelte-icons-pack/fa/FaNewspaper';
 	import FaSolidUser from 'svelte-icons-pack/fa/FaSolidUser';
 	import FaSolidHeart from 'svelte-icons-pack/fa/FaSolidHeart';
+	import FaSolidSignInAlt from 'svelte-icons-pack/fa/FaSolidSignInAlt';
+	import FaSolidSignOutAlt from 'svelte-icons-pack/fa/FaSolidSignOutAlt';
 	export let data;
 </script>
 
@@ -57,14 +59,14 @@
 			</TabAnchor>
 			<TabAnchor href="/logout">
 				<svelte:fragment slot="lead">
-					<Icon src={FaSolidUser} />
+					<Icon src={FaSolidSignOutAlt} />
 				</svelte:fragment>
 				<span>Logout</span>
 			</TabAnchor>
 			{:else}
 			<TabAnchor href="/login">
 				<svelte:fragment slot="lead">
-					<Icon src={FaSolidUser} />
+					<Icon src={FaSolidSignInAlt} />
 				</svelte:fragment>
 				<span>Login</span>
 			</TabAnchor>
@@ -100,14 +102,14 @@
 				</AppRailAnchor>
 				<AppRailAnchor href="/logout">
 					<svelte:fragment slot="lead">
-						<Icon src={FaSolidUser} />
+						<Icon src={FaSolidSignOutAlt} />
 					</svelte:fragment>
 					<span>Logout</span>
 				</AppRailAnchor>
 			{:else}
 				<AppRailAnchor href="/login">
 					<svelte:fragment slot="lead">
-						<Icon src={FaSolidUser} />
+						<Icon src={FaSolidSignInAlt} />
 					</svelte:fragment>
 					<span>Login</span>
 				</AppRailAnchor>
