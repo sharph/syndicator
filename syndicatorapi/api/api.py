@@ -174,7 +174,12 @@ def favorites(request, before: datetime | None = None):
 
 @api.get("/subscriptions/", response=list[FeedSchema], tags=["subscriptions"])
 def subscritions(request):
-    return Feed.objects.filter(subscriptions__user=request.user)
+    subscritions = (
+        Subscription.objects.filter(user=request.user)
+        .order_by("-created")
+        .select_related("feed")
+    )
+    return [subscription.feed for subscription in subscritions]
 
 
 @api.post("/subscriptions/", response=FeedSchema, tags=["subscriptions"])

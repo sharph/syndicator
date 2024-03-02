@@ -104,6 +104,7 @@ class Subscription(models.Model):
     user = models.ForeignKey(
         "user.User", related_name="subscriptions", on_delete=models.CASCADE
     )
+    created = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ("feed", "user")
