@@ -9,8 +9,12 @@ import requests
 
 from bs4 import BeautifulSoup
 
+VERSION = settings.GIT_HASH[:7] if settings.GIT_HASH != "unknown" else "dev"
 
-USER_AGENT = f"syndicator/{settings.GIT_HASH}"
+
+USER_AGENT = (
+    f"Mozilla/5.0 (compatible; syndicator/{VERSION}; +mailto:ua@syndicator.garden)"
+)
 TIMEOUT = 5
 
 
@@ -153,7 +157,9 @@ def discover_feed(url) -> (str, str):
         head = PageHead(soup)
         if head.rss:
             feed_url = head.rss
-            response = requests.get(head.rss, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
+            response = requests.get(
+                head.rss, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT
+            )
         else:
             raise ValueError("No feed found in HTML")
     else:
