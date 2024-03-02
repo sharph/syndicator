@@ -3,6 +3,8 @@ import datetime
 from itertools import chain
 from pprint import pprint
 
+import urllib.parse
+
 from django.conf import settings
 
 import requests
@@ -56,7 +58,11 @@ class FeedMetadata:
 
     def __getitem__(self, key):
         if key == "image":
-            return self.soup.image.url.text if hasattr(self.soup, "image") else None
+            return (
+                self.soup.image.url.text
+                if hasattr(self.soup, "image") and self.soup.image
+                else None
+            )
         return get_content(self.soup, key)
 
     @property
@@ -156,9 +162,10 @@ def discover_feed(url) -> (str, str):
         soup = BeautifulSoup(response.text, "html.parser")
         head = PageHead(soup)
         if head.rss:
-            feed_url = head.rss
+            feed_url = urllib.parse.urljoin(url, head.rss)
+            print(feed_url)
             response = requests.get(
-                head.rss, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT
+                feed_url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT
             )
         else:
             raise ValueError("No feed found in HTML")
