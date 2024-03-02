@@ -8,7 +8,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         while True:
-            feed = Feed.refresh_next()
+            try:
+                feed = Feed.refresh_next()
+            except Exception as e:
+                print(e)
+                feed = None
             if feed:
                 print(f"Refreshed {feed}")
             else:

@@ -4,6 +4,8 @@ from django.utils import timezone
 from autoslug import AutoSlugField
 from . import feedreader
 
+from time import sleep
+
 MAX_ITEMS = 100
 DEFAULT_TTL = 60 * 60
 MIN_TTL = 60 * 5
@@ -62,7 +64,11 @@ class Feed(models.Model):
         self.last_refresh = timezone.now()
         self.save()
         for i, item in enumerate(data["items"]):
-            Item.fetch(self, item)
+            try:
+                Item.fetch(self, item)
+            except Exception as e:
+                print(e)
+                sleep(2)
             if i > MAX_ITEMS:
                 break
 
