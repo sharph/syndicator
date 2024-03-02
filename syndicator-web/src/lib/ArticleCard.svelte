@@ -73,4 +73,7 @@
     opacity: 1;
     transform: scale(1);
   }
+  .favorite:hover {
+    transform: scale(1.5);
+  }
 </style>
