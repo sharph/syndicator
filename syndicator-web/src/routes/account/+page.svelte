@@ -1,7 +1,12 @@
 <script lang="ts">
+	import { APP_TITLE } from '$lib/const';
 	export let data;
 	export let form;
 </script>
+
+<svelte:head>
+	<title>{APP_TITLE} - Account</title>
+</svelte:head>
 
 <div class="ml-auto mr-auto max-w-4xl p-5 pt-8">
 	<div>

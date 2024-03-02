@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { APP_TITLE } from "$lib/const";
 	import { invalidate } from "$app/navigation";
 	import { onMount } from "svelte";
 
@@ -8,6 +9,10 @@
 		invalidate('app:user');
 	});
 </script>
+
+<svelte:head>
+	<title>{APP_TITLE} - Login</title>
+</svelte:head>
 
 {#if form?.success === false}
 	<div class="ml-auto mr-auto max-w-4xl p-5">

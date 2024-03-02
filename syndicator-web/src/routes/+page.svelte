@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { APP_TITLE } from '$lib/const'
 	import { browser } from '$app/environment';
 	import InfiniteScroll from 'svelte-infinite-scroll';
 	import ArticleCard from '$lib/ArticleCard.svelte';
@@ -26,6 +27,10 @@
 		}
 	}
 </script>
+
+<svelte:head>
+    <title>{APP_TITLE} - Articles</title>
+</svelte:head>
 
 <div class="grid grid-cols-1 gap-4 p-5">
 	{#each data.articles as article}

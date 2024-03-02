@@ -1,5 +1,6 @@
 <script>
 	import '../app.pcss';
+	import { APP_TITLE } from '$lib/const';
 	import {
 		AppShell,
 		AppRail,
@@ -20,10 +21,14 @@
 	export let data;
 </script>
 
+<svelte:head>
+	<title>{APP_TITLE}</title>
+</svelte:head>
+
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar gridColumns="grid-cols-1" slotDefault="place-self-center" slotTrail="place-content-end">
-			<h1 class="title text-2xl">syndicator</h1>
+			<h1 class="title text-2xl">{APP_TITLE}</h1>
 		</AppBar>
 		<TabGroup
 			active="variant-filled-primary"
