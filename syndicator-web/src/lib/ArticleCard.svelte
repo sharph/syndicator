@@ -15,10 +15,10 @@
 	async function favorite() {
 		if (article.favorited) {
 			await api.unfavorite(`${article.feed.path}/${article.path}`);
-			article.favorited = false;
+			article.favorited = null;
 		} else {
 			await api.favorite(`${article.feed.path}/${article.path}`);
-			article.favorited = true;
+			article.favorited = 'favorited';
 		}
 	}
 </script>

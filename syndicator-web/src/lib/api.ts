@@ -93,71 +93,6 @@ export class APIUserError extends Error {
     }
 }
 
-export async function apiGet(f: typeof fetch, path: string) {
-    const res = await f(`${API_ROOT}${path}`,
-        {
-            method: 'GET',
-            credentials: 'include',
-        }
-    );
-    if (res.status >= 400 && res.status < 500) {
-        throw new APIUserError(res);
-    }
-    if (res.status !== 200) {
-        throw new Error(`API error: ${res.status} ${res.statusText}`);
-    }
-    return res;
-}
-
-export async function apiPost(f: typeof fetch, path: string, body: any) {
-    const res = await f(`${API_ROOT}${path}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-        credentials: 'include',
-    });
-    if (res.status >= 400 && res.status < 500) {
-        throw new APIUserError(res);
-    }
-    if (res.status !== 200) {
-        throw new Error(`API error: ${res.status} ${res.statusText}`);
-    }
-    return res;
-}
-
-export async function apiPatch(f: typeof fetch, path: string, body: any) {
-    const res = await f(`${API_ROOT}${path}`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-        credentials: 'include',
-    });
-    if (res.status >= 400 && res.status < 500) {
-        throw new APIUserError(res);
-    }
-    if (res.status !== 200) {
-        throw new Error(`API error: ${res.status} ${res.statusText}`);
-    }
-    return res;
-}
-
-export async function apiDelete(f: typeof fetch, path: string) {
-    const res = await f(`${API_ROOT}${path}`, {
-        method: 'DELETE',
-        credentials: 'include',
-    });
-    if (res.status >= 400 && res.status < 500) {
-        throw new APIUserError(res);
-    }
-    if (res.status !== 200) {
-        throw new Error(`API error: ${res.status} ${res.statusText}`);
-    }
-    return res;
-}
 
 export type Feed = {
     title: string;
@@ -188,101 +123,157 @@ export type User = {
     email: string;
 }
 
-export async function articles(f: typeof fetch, before?: string): Promise<Article[]> {
-    let url = '/articles';
-    if (before) {
-        url += `?before=${before}`;
+export class SyndicatorAPI {
+    fetch: typeof fetch;
+
+    constructor(f: typeof fetch) {
+        this.fetch = f;
     }
-    const res = await apiGet(f, url);
-    return await res.json();
-}
 
-export async function favorites(f: typeof fetch, before?: string): Promise<Article[]> {
-    let url = '/favorites';
-    if (before) {
-        url += `?before=${before}`;
+    async apiGet(path: string) {
+        const res = await this.fetch(`${API_ROOT}${path}`,
+            {
+                method: 'GET',
+                credentials: 'include',
+            }
+        );
+        if (res.status >= 400 && res.status < 500) {
+            throw new APIUserError(res);
+        }
+        if (res.status !== 200) {
+            throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        return res;
     }
-    const res = await apiGet(f, url);
-    return await res.json();
-}
 
-export async function click(f: typeof fetch, path: string): Promise<void> {
-    await apiPost(f, `/clicks/${path}`, {});
-}
+    async apiPost(path: string, body: any) {
+        const res = await this.fetch(`${API_ROOT}${path}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+            credentials: 'include',
+        });
+        if (res.status >= 400 && res.status < 500) {
+            throw new APIUserError(res);
+        }
+        if (res.status !== 200) {
+            throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        return res;
+    }
 
-export async function unclick(f: typeof fetch, path: string): Promise<void> {
-    await apiDelete(f, `/clicks/${path}`);
-}
+    async apiPatch(path: string, body: any) {
+        const res = await this.fetch(`${API_ROOT}${path}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+            credentials: 'include',
+        });
+        if (res.status >= 400 && res.status < 500) {
+            throw new APIUserError(res);
+        }
+        if (res.status !== 200) {
+            throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        return res;
+    }
 
-export async function favorite(f: typeof fetch, path: string): Promise<void> {
-    await apiPost(f, `/favorites/${path}`, {});
-}
+    async apiDelete(path: string) {
+        const res = await this.fetch(`${API_ROOT}${path}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (res.status >= 400 && res.status < 500) {
+            throw new APIUserError(res);
+        }
+        if (res.status !== 200) {
+            throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        return res;
+    }
 
-export async function unfavorite(f: typeof fetch, path: string): Promise<void> {
-    await apiDelete(f, `/favorites/${path}`);
-}
+    async articles(before?: string): Promise<Article[]> {
+        let url = '/articles';
+        if (before) {
+            url += `?before=${before}`;
+        }
+        const res = await this.apiGet(url);
+        return await res.json();
+    }
 
-export async function register(f: typeof fetch, email: string, password: string): Promise<User> {
-    const res = await apiPost(f, '/auth/register', { email, password });
-    return await res.json();
-}
+    async favorites(before?: string): Promise<Article[]> {
+        let url = '/favorites';
+        if (before) {
+            url += `?before=${before}`;
+        }
+        const res = await this.apiGet(url);
+        return await res.json();
+    }
 
-export async function login(f: typeof fetch, email: string, password: string): Promise<User> {
-    const res = await apiPost(f, '/auth/login', { email, password });
-    return await res.json();
-}
+    async click(path: string) {
+        await this.apiPost(`/clicks/${path}`, {});
+    }
 
-export async function logout(f: typeof fetch): Promise<void> {
-    await apiPost(f, '/auth/logout', {});
-}
+    async unclick(path: string) {
+        await this.apiDelete(`/clicks/${path}`);
+    }
 
-export async function changePassword(f: typeof fetch, oldPassword: string, newPassword: string): Promise<User> {
-    const res = await apiPost(f, '/auth/change_password', {
-        old_password: oldPassword,
-        new_password: newPassword
-    });
-    return await res.json();
-}
+    async favorite(path: string) {
+        await this.apiPost(`/favorites/${path}`, {});
+    }
 
-export async function user(f: typeof fetch): Promise<User> {
-    const res = await apiGet(f, '/auth/user');
-    return await res.json();
-}
+    async unfavorite(path: string) {
+        await this.apiDelete(`/favorites/${path}`);
+    }
 
-export async function subscriptions(f: typeof fetch): Promise<Feed[]> {
-    const res = await apiGet(f, '/subscriptions/');
-    return await res.json();
-}
+    async register(email: string, password: string) {
+        const res = await this.apiPost('/auth/register', { email, password });
+        return await res.json();
+    }
 
-export async function subscribe(f: typeof fetch, url: string): Promise<Feed> {
-    const res = await apiPost(f, '/subscriptions/', { url });
-    return await res.json();
-}
+    async login(email: string, password: string): Promise<User> {
+        const res = await this.apiPost('/auth/login', { email, password });
+        return await res.json();
+    }
 
-export async function unsubscribe(f: typeof fetch, path: string): Promise<void> {
-    await apiDelete(f, `/subscriptions/${path}`);
+    async logout() {
+        await this.apiPost('/auth/logout', {});
+    }
+
+    async changePassword(oldPassword: string, newPassword: string) {
+        const res = await this.apiPost('/auth/change_password', {
+            old_password: oldPassword,
+            new_password: newPassword
+        });
+        return await res.json();
+    }
+
+    async user(): Promise<User> {
+        const res = await this.apiGet('/auth/user');
+        return await res.json();
+    }
+
+    async subscriptions(): Promise<Feed[]> {
+        const res = await this.apiGet('/subscriptions/');
+        return await res.json();
+    }
+
+    async subscribe(url: string): Promise<Feed> {
+        const res = await this.apiPost('/subscriptions/', { url });
+        return await res.json();
+    }
+
+    async unsubscribe(path: string) {
+        await this.apiDelete(`/subscriptions/${path}`);
+    }
+
 }
 
 export function getApi(f: typeof fetch) {
     const newFetch = wrapFetchToAddCsrfFromBrowser(f);
-    return {
-        get: (path: string, auth?: string) => apiGet(newFetch, path),
-        post: (path: string, body: any) => apiPost(newFetch, path, body),
-        patch: (path: string, body: any) => apiPatch(newFetch, path, body),
-        delete: (path: string) => apiDelete(newFetch, path),
-        articles: (before?: string) => articles(newFetch, before),
-        favorites: (before?: string) => favorites(newFetch, before),
-        click: (path: string) => click(newFetch, path),
-        unclick: (path: string) => unclick(newFetch, path),
-        favorite: (path: string) => favorite(newFetch, path),
-        unfavorite: (path: string) => unfavorite(newFetch, path),
-        register: (email: string, password: string) => register(newFetch, email, password),
-        login: (email: string, password: string) => login(newFetch, email, password),
-        logout: () => logout(newFetch),
-        user: () => user(newFetch),
-        changePassword: (oldPassword: string, newPassword: string) => changePassword(newFetch, oldPassword, newPassword),
-        subscriptions: () => subscriptions(newFetch),
-        subscribe: (url: string) => subscribe(newFetch, url),
-        unsubscribe: (path: string) => unsubscribe(newFetch, path),
-    };
+    return new SyndicatorAPI(newFetch);
 }
