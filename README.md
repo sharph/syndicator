@@ -16,12 +16,31 @@ for the user.
 
 ### Use modern standards to build previews
 
-Since RSS came on the scene, Open Graph came along to help social media
-sites create link cards, and publishers spend much more effort making sure
+Since RSS was released, Open Graph was created to allow social media
+sites create link cards. Publishers spend much more effort making sure
 their Open Graph data is presentable than RSS, so if that data is available,
 we use it instead of the data in RSS.
 
 ## Development
+
+Set up the API
+
+```bash
+virtualenv s-api
+. ./s-api/bin/activate
+cd syndicatorapi
+pip install -r requirements.txt
+./manage.py migrate
+./manage.py runserver
+```
+
+Separately, set up the SvelteKit frontend:
+
+```bash
+cd syndicator-web
+npm i
+npm run dev
+```
 
 ### Regenerating TypeScript types from Django Ninja API
 
