@@ -1,9 +1,9 @@
 <script lang="ts">
   import Icon from 'svelte-icons-pack/Icon.svelte';
   import FaSolidHeart from 'svelte-icons-pack/fa/FaSolidHeart';
-	import type { Article } from './api';
+	import type { components } from './apiTypes';
 	import { getApi } from './api';
-	export let article: Article;
+	export let article: components['schemas']['ItemSchema'];
 
 	const api = getApi(fetch);
 

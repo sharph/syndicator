@@ -2,6 +2,7 @@ import { API_ROOT } from "./const";
 import type { Cookies } from "@sveltejs/kit";
 import { parse as parseSetCookie } from "set-cookie-parser";
 import { browser } from "$app/environment";
+import type { paths } from "./apiTypes";
 
 import * as clientCookies from "cookie";
 
@@ -94,34 +95,6 @@ export class APIUserError extends Error {
 }
 
 
-export type Feed = {
-    title: string;
-    description: string | null;
-    image: string | null;
-    language: string | null;
-    last_build_date: string | null;
-    pub_date: string | null;
-    generator: string | null;
-    url: string | null;
-    feed_url: string;
-    path: string;
-};
-
-export type Article = {
-    title: string;
-    description: string | null;
-    link: string;
-    image: string | null;
-    pub_date: string;
-    feed: Feed;
-    path: string;
-    clicked: boolean | undefined;
-    favorited: string | null | undefined;
-};
-
-export type User = {
-    email: string;
-}
 
 export class SyndicatorAPI {
     fetch: typeof fetch;
@@ -196,7 +169,7 @@ export class SyndicatorAPI {
         return res;
     }
 
-    async articles(before?: string): Promise<Article[]> {
+    async articles(before?: string): Promise<paths['/articles']['get']['responses'][200]['content']['application/json']> {
         let url = '/articles';
         if (before) {
             url += `?before=${before}`;
@@ -205,7 +178,7 @@ export class SyndicatorAPI {
         return await res.json();
     }
 
-    async favorites(before?: string): Promise<Article[]> {
+    async favorites(before?: string): Promise<paths['/favorites']['get']['responses'][200]['content']['application/json']> {
         let url = '/favorites';
         if (before) {
             url += `?before=${before}`;
@@ -214,37 +187,42 @@ export class SyndicatorAPI {
         return await res.json();
     }
 
-    async click(path: string) {
-        await this.apiPost(`/clicks/${path}`, {});
+    async click(path: string): Promise<paths['/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}']['post']['responses'][200]['content']['application/json']> {
+        const res = await this.apiPost(`/clicks/${path}`, {});
+        return await res.json();
     }
 
-    async unclick(path: string) {
-        await this.apiDelete(`/clicks/${path}`);
+    async unclick(path: string): Promise<paths['/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}']['delete']['responses'][200]['content']['application/json']> {
+        const res = await this.apiDelete(`/clicks/${path}`);
+        return await res.json();
     }
 
-    async favorite(path: string) {
-        await this.apiPost(`/favorites/${path}`, {});
+    async favorite(path: string): Promise<paths['/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}']['post']['responses'][200]['content']['application/json']> {
+        const res = await this.apiPost(`/favorites/${path}`, {});
+        return await res.json();
     }
 
-    async unfavorite(path: string) {
-        await this.apiDelete(`/favorites/${path}`);
+    async unfavorite(path: string): Promise<paths['/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}']['delete']['responses'][200]['content']['application/json']> {
+        const res = await this.apiDelete(`/favorites/${path}`);
+        return await res.json();
     }
 
-    async register(email: string, password: string) {
+    async register(email: string, password: string): Promise<paths['/auth/register']['post']['responses'][200]['content']['application/json']> {
         const res = await this.apiPost('/auth/register', { email, password });
         return await res.json();
     }
 
-    async login(email: string, password: string): Promise<User> {
+    async login(email: string, password: string): Promise<paths['/auth/login']['post']['responses'][200]['content']['application/json']> {
         const res = await this.apiPost('/auth/login', { email, password });
         return await res.json();
     }
 
-    async logout() {
-        await this.apiPost('/auth/logout', {});
+    async logout(): Promise<paths['/auth/logout']['post']['responses'][200]['content']['application/json']> {
+        const res = await this.apiPost('/auth/logout', {});
+        return await res.json();
     }
 
-    async changePassword(oldPassword: string, newPassword: string) {
+    async changePassword(oldPassword: string, newPassword: string): Promise<paths['/auth/change_password']['post']['responses'][200]['content']['application/json']> {
         const res = await this.apiPost('/auth/change_password', {
             old_password: oldPassword,
             new_password: newPassword
@@ -252,23 +230,24 @@ export class SyndicatorAPI {
         return await res.json();
     }
 
-    async user(): Promise<User> {
+    async user(): Promise<paths['/auth/user']['get']['responses'][200]['content']['application/json']> {
         const res = await this.apiGet('/auth/user');
         return await res.json();
     }
 
-    async subscriptions(): Promise<Feed[]> {
+    async subscriptions(): Promise<paths['/subscriptions/']['get']['responses'][200]['content']['application/json']> {
         const res = await this.apiGet('/subscriptions/');
         return await res.json();
     }
 
-    async subscribe(url: string): Promise<Feed> {
+    async subscribe(url: string): Promise<paths['/subscriptions/']['post']['responses'][200]['content']['application/json']> {
         const res = await this.apiPost('/subscriptions/', { url });
         return await res.json();
     }
 
-    async unsubscribe(path: string) {
-        await this.apiDelete(`/subscriptions/${path}`);
+    async unsubscribe(path: string): Promise<paths['/subscriptions/{key}/{slug}']['delete']['responses'][200]['content']['application/json']> {
+        const res = await this.apiDelete(`/subscriptions/${path}`);
+        return await res.json();
     }
 
 }

@@ -20,3 +20,13 @@ Since RSS came on the scene, Open Graph came along to help social media
 sites create link cards, and publishers spend much more effort making sure
 their Open Graph data is presentable than RSS, so if that data is available,
 we use it instead of the data in RSS.
+
+## Development
+
+### Regenerating TypeScript types from Django Ninja API
+
+Inside `syndicator-web` with the api dev server running:
+
+```bash
+ npx openapi-typescript http://127.0.0.1:8000/openapi.json -o src/lib/apiTypes.d.ts
+```

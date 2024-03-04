@@ -20,6 +20,9 @@ from django.core.validators import validate_email
 
 api = NinjaAPI(title="syndicator", auth=django_auth, csrf=True)
 
+class OK(Schema):
+    success: bool = True
+
 # auth
 
 
@@ -84,7 +87,7 @@ def change_password(request, data: ChangePasswordIn):
     return request.user
 
 
-@api.post("/auth/logout", auth=None)
+@api.post("/auth/logout", auth=None, response=OK)
 def logout(request):
     auth_logout(request)
     return {"success": True}
@@ -196,7 +199,7 @@ def add_subscription(request, data: FeedIn):
     return feed
 
 
-@api.delete("/subscriptions/{key}/{slug}", tags=["subscriptions"])
+@api.delete("/subscriptions/{key}/{slug}", response=OK, tags=["subscriptions"])
 def delete_subscription(request, key: str, slug: str):
     Subscription.objects.filter(
         user=request.user, feed__key=key, feed__slug=slug
@@ -204,7 +207,7 @@ def delete_subscription(request, key: str, slug: str):
     return {"success": True}
 
 
-@api.post("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["clicks"])
+@api.post("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", response=OK, tags=["clicks"])
 def click(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
     item = get_object_or_404(
         Item.objects.filter(
@@ -218,7 +221,7 @@ def click(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str)
     return {"success": True}
 
 
-@api.delete("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["clicks"])
+@api.delete("/clicks/{feed_key}/{feed_slug}/{item_key}/{item_slug}", response=OK, tags=["clicks"])
 def unclick(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
     item = get_object_or_404(
         Item.objects.filter(
@@ -235,7 +238,7 @@ def unclick(request, feed_key: str, feed_slug: str, item_key: str, item_slug: st
 
 
 @api.post(
-    "/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["favorites"]
+    "/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}", response=OK, tags=["favorites"]
 )
 def favorite(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
     item = get_object_or_404(
@@ -251,7 +254,7 @@ def favorite(request, feed_key: str, feed_slug: str, item_key: str, item_slug: s
 
 
 @api.delete(
-    "/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}", tags=["favorites"]
+    "/favorites/{feed_key}/{feed_slug}/{item_key}/{item_slug}", response=OK, tags=["favorites"]
 )
 def unfavorite(request, feed_key: str, feed_slug: str, item_key: str, item_slug: str):
     item = get_object_or_404(
@@ -268,7 +271,7 @@ def unfavorite(request, feed_key: str, feed_slug: str, item_key: str, item_slug:
     return {"success": True}
 
 
-@api.post("/csrf", tags=["csrf"], auth=None)
+@api.post("/csrf", response=OK, tags=["csrf"], auth=None)
 @ensure_csrf_cookie
 @csrf_exempt
 def csrf(request):
