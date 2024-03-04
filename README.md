@@ -3,6 +3,8 @@
 
 a modern feed aggregator, for readers of writers
 
+![screenshot](screenshot.png)
+
 ## The syndicator philosophy
 
 ### The proper place to view articles is on the website where they were published
