@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-ignore
 	import Icon from 'svelte-icons-pack/Icon.svelte';
 	import FaSolidHeart from 'svelte-icons-pack/fa/FaSolidHeart';
 	import { DateTime } from 'luxon';

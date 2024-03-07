@@ -12,6 +12,7 @@
 	import type { AfterNavigate } from '@sveltejs/kit';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
+	// @ts-ignore
 	import Icon from 'svelte-icons-pack/Icon.svelte';
 	import FaSolidRss from 'svelte-icons-pack/fa/FaSolidRss';
 	import FaNewspaper from 'svelte-icons-pack/fa/FaNewspaper';
