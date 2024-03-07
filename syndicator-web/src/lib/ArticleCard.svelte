@@ -8,7 +8,7 @@
 	export let article: components['schemas']['ItemSchema'];
 
 	const api = getApi(fetch);
-	const pub_date = DateTime.fromISO(article.pub_date);
+	const pubDate = DateTime.fromISO(article.pub_date);
 
 	async function click() {
 		await api.click(`${article.feed.path}/${article.path}`);
@@ -37,7 +37,7 @@
 					<a target="_blank" href={article.link}>{article.display_title}</a>
 				</h2>
 				<p class="text-xl md:text-2xl">{article.feed.title}</p>
-				<p class="text-sm">{pub_date.toLocaleString(DateTime.DATETIME_MED)}</p>
+				<p class="text-sm">{pubDate.toLocaleString(DateTime.DATETIME_MED)}</p>
 				<p>{article.description}</p>
 			</div>
 			<div class="m-4 md:col-span-1">
