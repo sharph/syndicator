@@ -33,7 +33,7 @@
 		>
 			<div class="m-4 md:col-span-2">
 				<h2 class="text-2xl font-bold md:text-4xl">
-					<a target="_blank" href={article.link}>{article.title}</a>
+					<a target="_blank" href={article.link}>{article.display_title}</a>
 				</h2>
 				<p class="text-xl md:text-2xl">{article.feed.title}</p>
 				<p class="text-sm">{pub_date.toLocaleString(DateTime.DATETIME_MED)}</p>

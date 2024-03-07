@@ -119,6 +119,8 @@ export interface components {
     ItemSchema: {
       /** Title */
       title: string;
+      /** Display Title */
+      display_title: string;
       /** Description */
       description: string | null;
       /** Link */

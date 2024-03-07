@@ -143,6 +143,12 @@ class Item(models.Model):
         return timezone.now() + timezone.timedelta(days=1)
 
     @property
+    def display_title(self):
+        if self.title.endswith(f" - {self.feed.title}"):
+            return self.title[: -len(f" - {self.feed.title}")]
+        return self.title
+
+    @property
     def path(self):
         return f"{self.key}/{self.slug}"
 

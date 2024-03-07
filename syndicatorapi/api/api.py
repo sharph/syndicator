@@ -120,6 +120,7 @@ class FeedIn(Schema):
 
 class ItemSchema(Schema):
     title: str
+    display_title: str
     description: str | None
     link: str
     image: str | None
