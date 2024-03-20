@@ -144,7 +144,9 @@ class Item(models.Model):
 
     @property
     def display_title(self):
-        if self.title.endswith(f" - {self.feed.title}"):
+        if self.title.endswith(f" - {self.feed.title}") or self.title.endswith(
+            f" | {self.feed.title}"
+        ):
             return self.title[: -len(f" - {self.feed.title}")]
         return self.title
 
