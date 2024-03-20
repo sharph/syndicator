@@ -114,6 +114,8 @@ class PageHead:
         self.url = url
 
     def __getitem__(self, key):
+        if not self.head:
+            return None
         return (
             self.head.find("meta", property=key)["content"]
             if self.head.find("meta", property=key)
@@ -192,8 +194,12 @@ def discover_feed(url) -> (str, str):
 
 
 def get_pagehead(url):
-    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
-    return PageHead(BeautifulSoup(response.text, "html.parser"), url)
+    try:
+        response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
+        return PageHead(BeautifulSoup(response.text, "html.parser"), url)
+    except Exception as e:
+        print(e)
+        return PageHead(None, url)
 
 
 if __name__ == "__main__":
