@@ -3,7 +3,7 @@ import datetime
 from itertools import chain
 from pprint import pprint
 
-import urllib.parse
+from urllib.parse import urljoin
 
 from django.conf import settings
 
@@ -53,14 +53,21 @@ class FeedMetadata:
         "image",
     ]
 
-    def __init__(self, soup):
+    def __init__(self, soup, url):
         self.soup = soup
+        self.url = url
 
     def __getitem__(self, key):
         if key == "image":
             return (
-                self.soup.image.url.text
+                urljoin(self.url, self.soup.image.url.text)
                 if hasattr(self.soup, "image") and self.soup.image
+                else None
+            )
+        if key == "link":
+            return (
+                urljoin(self.url, get_content(self.soup, "link"))
+                if get_content(self.soup, "link")
                 else None
             )
         return get_content(self.soup, key)
@@ -71,8 +78,9 @@ class FeedMetadata:
 
 
 class FeedItem:
-    def __init__(self, item):
+    def __init__(self, item, url):
         self.item = item
+        self.url = url
 
     def __getitem__(self, key):
         return get_content(self.item, key)
@@ -88,7 +96,7 @@ class FeedItem:
     @property
     def image(self):
         return (
-            self.item.find("media:content")["url"]
+            urljoin(self.url, self.item.find("media:content")["url"])
             if self.item.find("media:content")
             else None
         )
@@ -101,8 +109,9 @@ class FeedItem:
 
 
 class PageHead:
-    def __init__(self, soup):
+    def __init__(self, soup, url):
         self.head = soup.head
+        self.url = url
 
     def __getitem__(self, key):
         return (
@@ -124,13 +133,13 @@ class PageHead:
         if not self["og:image"]:
             print("image missing")
             print(self.head)
-        return self["og:image"]
+        return urljoin(self.url, self["og:image"])
 
     @property
     def rss(self):
         tag = self.head.find("link", type="application/rss+xml")
         if tag and tag.has_attr("href"):
-            return tag["href"]
+            return urljoin(self.url, tag["href"])
 
     def __repr__(self):
         return json.dumps(
@@ -142,27 +151,27 @@ class PageHead:
         )
 
 
-def parse_feed(xml):
+def parse_feed(xml, url):
     soup = BeautifulSoup(xml, "xml")
     items = soup.find_all("item")
     return {
-        "metadata": FeedMetadata(soup.channel),
-        "items": [FeedItem(item) for item in items],
+        "metadata": FeedMetadata(soup.channel, url),
+        "items": [FeedItem(item, url) for item in items],
     }
 
 
 def get_and_parse_feed(url):
     xml = get_feed(url)
-    return parse_feed(xml)
+    return parse_feed(xml, url)
 
 
 def discover_feed(url) -> (str, str):
     response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     if response.headers.get("content-type", "").startswith("text/html"):
         soup = BeautifulSoup(response.text, "html.parser")
-        head = PageHead(soup)
+        head = PageHead(soup, url)
         if head.rss:
-            feed_url = urllib.parse.urljoin(url, head.rss)
+            feed_url = head.rss
             print(feed_url)
             response = requests.get(
                 feed_url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT
@@ -176,7 +185,7 @@ def discover_feed(url) -> (str, str):
         or response.headers.get("content-type", "").startswith("application/rss+xml")
         or response.headers.get("content-type", "").startswith("application/xml")
     ):
-        return feed_url, FeedMetadata(BeautifulSoup(response.text, "xml"))
+        return feed_url, FeedMetadata(BeautifulSoup(response.text, "xml"), feed_url)
     else:
         print(response.headers.get("content-type", ""))
         raise ValueError("No feed found")
@@ -184,7 +193,7 @@ def discover_feed(url) -> (str, str):
 
 def get_pagehead(url):
     response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
-    return PageHead(BeautifulSoup(response.text, "html.parser"))
+    return PageHead(BeautifulSoup(response.text, "html.parser"), url)
 
 
 if __name__ == "__main__":
