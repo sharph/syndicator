@@ -110,7 +110,10 @@ class FeedItem:
 
 class PageHead:
     def __init__(self, soup, url):
-        self.head = soup.head
+        if soup:
+            self.head = soup.head
+        else:
+            self.head = None
         self.url = url
 
     def __getitem__(self, key):
