@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
+from django.utils import timezone
+
 from .email import normalize_email_sync as normalize_email
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, normalized_email=None, **extra_fields):
@@ -30,10 +33,13 @@ class UserManager(BaseUserManager):
 
         return user
 
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     display_email = models.EmailField()
+    joined_at = models.DateTimeField(default=timezone.now)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
