@@ -1,0 +1,15 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: syndicator-database
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    size: 10Gi
+  resources:
+    requests:
+      memory: "32Mi"
+    limits:
+      memory: "128Mi"
