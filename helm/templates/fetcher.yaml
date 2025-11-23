@@ -60,5 +60,4 @@ spec:
               key: django-secret
         resources:
           limits:
-            memory: 512Mi
-            cpu: 250m
+            memory: 256Mi
