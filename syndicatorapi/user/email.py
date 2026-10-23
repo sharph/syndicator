@@ -9,4 +9,5 @@ async def normalize_email(email):
     except ValueError:
         return email
 
+
 normalize_email_sync = async_to_sync(normalize_email)

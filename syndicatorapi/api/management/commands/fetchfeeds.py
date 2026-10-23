@@ -1,11 +1,11 @@
 from time import sleep
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+
 from api.models import Feed
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         while True:
             try:

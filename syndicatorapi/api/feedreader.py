@@ -1,22 +1,17 @@
-import json
 import datetime
-from itertools import chain
+import json
 from pprint import pprint
-
+from typing import ClassVar
 from urllib.parse import urljoin
 
-from django.conf import settings
-
 import requests
-
 from bs4 import BeautifulSoup
+from django.conf import settings
 
 VERSION = settings.GIT_HASH[:7] if settings.GIT_HASH != "unknown" else "dev"
 
 
-USER_AGENT = (
-    f"Mozilla/5.0 (compatible; syndicator/{VERSION}; +mailto:ua@syndicator.garden)"
-)
+USER_AGENT = f"Mozilla/5.0 (compatible; syndicator/{VERSION}; +mailto:ua@syndicator.garden)"
 TIMEOUT = 5
 
 
@@ -30,19 +25,15 @@ def get_content(item, tag):
     if content:
         if tag == "pubDate" or tag == "lastBuildDate":
             try:
-                return datetime.datetime.strptime(
-                    content.text, "%a, %d %b %Y %H:%M:%S %Z"
-                )
+                return datetime.datetime.strptime(content.text, "%a, %d %b %Y %H:%M:%S %Z")
             except ValueError:
-                return datetime.datetime.strptime(
-                    content.text, "%a, %d %b %Y %H:%M:%S %z"
-                )
+                return datetime.datetime.strptime(content.text, "%a, %d %b %Y %H:%M:%S %z")
         return content.text
     return None
 
 
 class FeedMetadata:
-    FIELDS = [
+    FIELDS: ClassVar[list[str]] = [
         "title",
         "description",
         "link",
@@ -178,9 +169,7 @@ def discover_feed(url) -> (str, str):
         if head.rss:
             feed_url = head.rss
             print(feed_url)
-            response = requests.get(
-                feed_url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT
-            )
+            response = requests.get(feed_url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
         else:
             raise ValueError("No feed found in HTML")
     else:

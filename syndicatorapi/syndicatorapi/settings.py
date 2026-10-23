@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-import os
 import json
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -158,9 +158,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "user.User"
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = json.loads(
-    os.getenv(
-        "DJANGO_ALLOWED_ORIGINS", '["http://127.0.0.1:5173","http://localhost:5173"]'
-    )
+    os.getenv("DJANGO_ALLOWED_ORIGINS", '["http://127.0.0.1:5173","http://localhost:5173"]')
 )
 
 if os.getenv("DJANGO_COOKIE_DOMAIN"):
