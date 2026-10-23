@@ -1,23 +1,35 @@
-FROM python:3.11
+FROM ghcr.io/astral-sh/uv:python3.11-trixie-slim AS builder
 
-RUN mkdir /app
+# Use the system Python across both stages (don't download uv-managed Python)
+ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
 
-COPY requirements.txt /app
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-RUN mkdir /app/staticfiles
+# Install dependencies into .venv
+RUN uv sync --frozen --no-install-project
 
-RUN pip install -r requirements.txt
+FROM ghcr.io/astral-sh/uv:python3.11-trixie-slim
 
+WORKDIR /app
+
+# Copy the venv from builder
+COPY --from=builder /app/.venv /app/.venv
+
+# Copy pyproject.toml so `uv run` can find the project
+COPY pyproject.toml ./
+
+# Copy application code
 COPY . /app
 
-RUN ./manage.py collectstatic
+# Collect static files
+RUN uv run manage.py collectstatic --noinput
 
 EXPOSE 8000
 
 ARG GITHUB_SHA=unknown
 ENV GIT_HASH=${GITHUB_SHA}
 
-CMD ["gunicorn", "syndicatorapi.wsgi", "--bind", "0.0.0.0:8000"]
-
+CMD ["uv", "run", "gunicorn", "syndicatorapi.wsgi", "--bind", "0.0.0.0:8000"]
