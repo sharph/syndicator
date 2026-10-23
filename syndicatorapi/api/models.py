@@ -1,10 +1,11 @@
 import random
+from time import sleep
+
+from autoslug import AutoSlugField
 from django.db import models, transaction
 from django.utils import timezone
-from autoslug import AutoSlugField
-from . import feedreader
 
-from time import sleep
+from . import feedreader
 
 MAX_ITEMS = 100
 DEFAULT_TTL = 60 * 60
@@ -104,12 +105,8 @@ class Feed(models.Model):
 
 
 class Subscription(models.Model):
-    feed = models.ForeignKey(
-        Feed, related_name="subscriptions", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        "user.User", related_name="subscriptions", on_delete=models.CASCADE
-    )
+    feed = models.ForeignKey(Feed, related_name="subscriptions", on_delete=models.CASCADE)
+    user = models.ForeignKey("user.User", related_name="subscriptions", on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -208,9 +205,7 @@ class Item(models.Model):
 
 class ItemClick(models.Model):
     item = models.ForeignKey(Item, related_name="clicks", on_delete=models.CASCADE)
-    subscription = models.ForeignKey(
-        Subscription, related_name="clicks", on_delete=models.CASCADE
-    )
+    subscription = models.ForeignKey(Subscription, related_name="clicks", on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
 
     class Meta:

@@ -23,7 +23,7 @@ spec:
       containers:
       - image: 'ghcr.io/sharph/syndicator-api:{{ .Values.api.image.tag }}'
         name: syndicator-db-migration
-        command: ["./manage.py", "migrate"]
+        command: ["uv", "run", "manage.py", "migrate"]
         env:
         - name: PYTHONUNBUFFERED
           value: "1"

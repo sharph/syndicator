@@ -20,7 +20,7 @@ spec:
       containers:
       - image: 'ghcr.io/sharph/syndicator-api:{{ .Values.api.image.tag }}'
         name: syndicator-fetcher
-        command: ["./manage.py", "fetchfeeds"]
+        command: ["uv", "run", "manage.py", "fetchfeeds"]
         env:
         - name: PYTHONUNBUFFERED
           value: "1"
