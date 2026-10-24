@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.11-trixie-slim AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 
 # Use the system Python across both stages (don't download uv-managed Python)
 ENV UV_PYTHON_DOWNLOADS=0
@@ -11,7 +11,7 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies into .venv
 RUN uv sync --frozen --no-install-project
 
-FROM ghcr.io/astral-sh/uv:python3.11-trixie-slim
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 
 WORKDIR /app
 

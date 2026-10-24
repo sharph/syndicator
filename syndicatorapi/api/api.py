@@ -16,7 +16,7 @@ from user.models import User
 from .feedreader import discover_feed
 from .models import Feed, Item, ItemClick, ItemFavorite, Subscription
 
-api = NinjaAPI(title="syndicator", auth=django_auth, csrf=True)
+api = NinjaAPI(title="syndicator", auth=django_auth)
 
 
 class OK(Schema):
